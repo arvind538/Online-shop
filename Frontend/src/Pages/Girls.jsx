@@ -90,7 +90,7 @@ const Girls = () => {
                   </span>
 
                   {/* Quick Add hover */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-orange-500/90 py-2.5 translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex justify-center">
+                  {/* <div className="absolute bottom-0 left-0 right-0 bg-orange-500/90 py-2.5 translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex justify-center">
                     <button
                       onClick={() => handleAdd(item)}
                       className="flex items-center gap-2 text-white text-xs font-bold"
@@ -98,7 +98,7 @@ const Girls = () => {
                       <FaShoppingCart />
                       Quick Add to Cart
                     </button>
-                  </div>
+                  </div> */}
                 </div>
 
                 {/* Details */}
@@ -157,11 +157,10 @@ const Girls = () => {
                       // Add button shown when item is not in cart yet
                       <button
                         onClick={() => handleAdd(item)}
-                        className={`flex-1 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 flex items-center justify-center gap-1 ${
-                          justAdded
-                            ? "bg-green-500 text-white"
-                            : "bg-orange-500 hover:bg-orange-600 text-white"
-                        }`}
+                        className={`flex-1 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 flex items-center justify-center gap-1 ${justAdded
+                          ? "bg-green-500 text-white"
+                          : "bg-orange-500 hover:bg-orange-600 text-white"
+                          }`}
                       >
                         {justAdded ? (
                           <><FaCheck className="text-xs" /> Added!</>

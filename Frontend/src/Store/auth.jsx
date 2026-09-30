@@ -3,26 +3,28 @@ import { createContext, useContext, useState, useEffect } from "react";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    
-    const API = import.meta.env.VITE_APP_URL_API;
+    const API = import.meta.env.VITE_APP_URL_API || "https://online-shop-website-21.onrender.com";
 
     const [token, setToken] = useState(localStorage.getItem("token") || "");
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [services, setServices] = useState([]);
 
-    // ✅ CART STATE — localStorage se load hoga taaki refresh pe bhi rahe
+    // CART: localStorage se load (kharab data ho to crash nahi hoga)
     const [cart, setCart] = useState(() => {
-        const saved = localStorage.getItem("cart");
-        return saved ? JSON.parse(saved) : [];
+        try {
+            const saved = localStorage.getItem("cart");
+            return saved ? JSON.parse(saved) : [];
+        } catch {
+            return [];
+        }
     });
 
-    // ✅ Cart change hone pe localStorage mein save karo
     useEffect(() => {
         localStorage.setItem("cart", JSON.stringify(cart));
     }, [cart]);
 
-    // ✅ CART FUNCTIONS
+    // ---------- CART FUNCTIONS ----------
     const addToCart = (product) => {
         setCart((prev) => {
             const exist = prev.find((item) => item.id === product.id);
@@ -53,6 +55,7 @@ export const AuthProvider = ({ children }) => {
 
     const clearCart = () => setCart([]);
 
+    // ---------- AUTH ----------
     const authorizationToken = token ? `Bearer ${token}` : "";
     const isLoggedIn = !!token;
 
@@ -69,25 +72,31 @@ export const AuthProvider = ({ children }) => {
     };
 
     const userAuthentication = async () => {
+        if (!token) {
+            setUser(null);
+            setIsLoading(false);
+            return;
+        }
+
+        setIsLoading(true);
         try {
-            if (!token) {
-                setIsLoading(false);
-                return;
-            }
             const response = await fetch(`${API}/api/auth/user`, {
                 method: "GET",
                 headers: {
-                    Authorization: authorizationToken,
+                    Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
                 },
             });
-            const data = await response.json();
+
             if (response.ok) {
-                setUser(data.userdata);
-            } else {
+                const data = await response.json();
+                setUser(data.userdata || data.userData || data.user || null);
+            } else if ([400, 401, 403].includes(response.status)) {
+                // token invalid/expire hai to hi logout
                 LogoutUser();
             }
         } catch (error) {
+            // backend band ho to logout mat karo
             console.error("User auth error:", error);
         } finally {
             setIsLoading(false);
@@ -108,15 +117,18 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         userAuthentication();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token]);
 
     useEffect(() => {
         getServices();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
         <AuthContext.Provider
             value={{
+                token,
                 isLoggedIn,
                 storeTokenInLS,
                 LogoutUser,
@@ -125,7 +137,6 @@ export const AuthProvider = ({ children }) => {
                 authorizationToken,
                 isLoading,
                 API,
-                // ✅ YEH SAB NAYA ADD HUA
                 cart,
                 addToCart,
                 removeFromCart,
@@ -143,6 +154,9 @@ export const useAuth = () => {
 };
 
 
+
+
+
 // import { createContext, useContext, useState, useEffect } from "react";
 
 // export const AuthContext = createContext();
@@ -151,40 +165,74 @@ export const useAuth = () => {
     
 //     const API = import.meta.env.VITE_APP_URL_API;
 
-    
 //     const [token, setToken] = useState(localStorage.getItem("token") || "");
 //     const [user, setUser] = useState(null);
 //     const [isLoading, setIsLoading] = useState(true);
 //     const [services, setServices] = useState([]);
 
+//     // CART STATE — localStorage se load hoga taaki refresh pe bhi rahe
+//     const [cart, setCart] = useState(() => {
+//         const saved = localStorage.getItem("cart");
+//         return saved ? JSON.parse(saved) : [];
+//     });
+
+//     // Cart change hone pe localStorage mein save karo
+//     useEffect(() => {
+//         localStorage.setItem("cart", JSON.stringify(cart));
+//     }, [cart]);
+
+//     // CART FUNCTIONS
+//     const addToCart = (product) => {
+//         setCart((prev) => {
+//             const exist = prev.find((item) => item.id === product.id);
+//             if (exist) {
+//                 return prev.map((item) =>
+//                     item.id === product.id
+//                         ? { ...item, quantity: item.quantity + 1 }
+//                         : item
+//                 );
+//             }
+//             return [...prev, { ...product, quantity: 1 }];
+//         });
+//     };
+
+//     const removeFromCart = (id) => {
+//         setCart((prev) => prev.filter((item) => item.id !== id));
+//     };
+
+//     const decreaseQty = (id) => {
+//         setCart((prev) =>
+//             prev
+//                 .map((item) =>
+//                     item.id === id ? { ...item, quantity: item.quantity - 1 } : item
+//                 )
+//                 .filter((item) => item.quantity > 0)
+//         );
+//     };
+
+//     const clearCart = () => setCart([]);
+
 //     const authorizationToken = token ? `Bearer ${token}` : "";
-
 //     const isLoggedIn = !!token;
-//     console.log("isLoggedIN", isLoggedIn);
 
-
-//     // ------ STORE TOKEN -------
 //     const storeTokenInLS = (serverToken) => {
 //         if (!serverToken) return;
 //         localStorage.setItem("token", serverToken);
 //         setToken(serverToken);
 //     };
 
-//     // ----- LOGOUT ------
 //     const LogoutUser = () => {
 //         localStorage.removeItem("token");
 //         setToken("");
 //         setUser(null);
 //     };
 
-//     // ----- USER AUTH CHECK -----
 //     const userAuthentication = async () => {
 //         try {
 //             if (!token) {
 //                 setIsLoading(false);
 //                 return;
 //             }
-
 //             const response = await fetch(`${API}/api/auth/user`, {
 //                 method: "GET",
 //                 headers: {
@@ -192,9 +240,7 @@ export const useAuth = () => {
 //                     "Content-Type": "application/json",
 //                 },
 //             });
-
 //             const data = await response.json();
-
 //             if (response.ok) {
 //                 setUser(data.userdata);
 //             } else {
@@ -207,11 +253,9 @@ export const useAuth = () => {
 //         }
 //     };
 
-//     // ---- SERVICES FETCH ----
 //     const getServices = async () => {
 //         try {
 //             const response = await fetch(`${API}/api/data/service`);
-
 //             if (response.ok) {
 //                 const data = await response.json();
 //                 setServices(data);
@@ -221,7 +265,6 @@ export const useAuth = () => {
 //         }
 //     };
 
-//     // ---- USE EFFECTS -----
 //     useEffect(() => {
 //         userAuthentication();
 //     }, [token]);
@@ -230,7 +273,6 @@ export const useAuth = () => {
 //         getServices();
 //     }, []);
 
-//     // ---- CONTEXT VALUE ---
 //     return (
 //         <AuthContext.Provider
 //             value={{
@@ -242,6 +284,11 @@ export const useAuth = () => {
 //                 authorizationToken,
 //                 isLoading,
 //                 API,
+//                 cart,
+//                 addToCart,
+//                 removeFromCart,
+//                 decreaseQty,
+//                 clearCart,
 //             }}
 //         >
 //             {children}
@@ -249,10 +296,121 @@ export const useAuth = () => {
 //     );
 // };
 
-
 // export const useAuth = () => {
 //     return useContext(AuthContext);
 // };
+
+
+// // import { createContext, useContext, useState, useEffect } from "react";
+
+// // export const AuthContext = createContext();
+
+// // export const AuthProvider = ({ children }) => {
+    
+// //     const API = import.meta.env.VITE_APP_URL_API;
+
+    
+// //     const [token, setToken] = useState(localStorage.getItem("token") || "");
+// //     const [user, setUser] = useState(null);
+// //     const [isLoading, setIsLoading] = useState(true);
+// //     const [services, setServices] = useState([]);
+
+// //     const authorizationToken = token ? `Bearer ${token}` : "";
+
+// //     const isLoggedIn = !!token;
+// //     console.log("isLoggedIN", isLoggedIn);
+
+
+// //     // ------ STORE TOKEN -------
+// //     const storeTokenInLS = (serverToken) => {
+// //         if (!serverToken) return;
+// //         localStorage.setItem("token", serverToken);
+// //         setToken(serverToken);
+// //     };
+
+// //     // ----- LOGOUT ------
+// //     const LogoutUser = () => {
+// //         localStorage.removeItem("token");
+// //         setToken("");
+// //         setUser(null);
+// //     };
+
+// //     // ----- USER AUTH CHECK -----
+// //     const userAuthentication = async () => {
+// //         try {
+// //             if (!token) {
+// //                 setIsLoading(false);
+// //                 return;
+// //             }
+
+// //             const response = await fetch(`${API}/api/auth/user`, {
+// //                 method: "GET",
+// //                 headers: {
+// //                     Authorization: authorizationToken,
+// //                     "Content-Type": "application/json",
+// //                 },
+// //             });
+
+// //             const data = await response.json();
+
+// //             if (response.ok) {
+// //                 setUser(data.userdata);
+// //             } else {
+// //                 LogoutUser();
+// //             }
+// //         } catch (error) {
+// //             console.error("User auth error:", error);
+// //         } finally {
+// //             setIsLoading(false);
+// //         }
+// //     };
+
+// //     // ---- SERVICES FETCH ----
+// //     const getServices = async () => {
+// //         try {
+// //             const response = await fetch(`${API}/api/data/service`);
+
+// //             if (response.ok) {
+// //                 const data = await response.json();
+// //                 setServices(data);
+// //             }
+// //         } catch (error) {
+// //             console.error("Service fetch error:", error);
+// //         }
+// //     };
+
+// //     // ---- USE EFFECTS -----
+// //     useEffect(() => {
+// //         userAuthentication();
+// //     }, [token]);
+
+// //     useEffect(() => {
+// //         getServices();
+// //     }, []);
+
+// //     // ---- CONTEXT VALUE ---
+// //     return (
+// //         <AuthContext.Provider
+// //             value={{
+// //                 isLoggedIn,
+// //                 storeTokenInLS,
+// //                 LogoutUser,
+// //                 user,
+// //                 services,
+// //                 authorizationToken,
+// //                 isLoading,
+// //                 API,
+// //             }}
+// //         >
+// //             {children}
+// //         </AuthContext.Provider>
+// //     );
+// // };
+
+
+// // export const useAuth = () => {
+// //     return useContext(AuthContext);
+// // };
 
 
 

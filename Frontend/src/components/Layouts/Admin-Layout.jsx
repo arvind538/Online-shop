@@ -29,11 +29,11 @@ const AdminLayout = () => {
     const navItems = [
         { to: "/admin/users", icon: <ImUsers />, label: "Users" },
         { to: "/admin/contacts", icon: <IoIosContacts />, label: "Contacts" },
-        { to: "/service", icon: <MdHomeRepairService />, label: "Services" },
-        { to: "/", icon: <AiFillHome />, label: "Home" },
+        // { to: "/service", icon: <MdHomeRepairService />, label: "Services" },
+        // { to: "/", icon: <AiFillHome />, label: "Home" },
     ];
 
-    // ✅ Sidebar content alag component mein — reuse hoga
+    //  Sidebar content alag component mein — reuse hoga
     const SidebarContent = () => (
         <div className="flex flex-col h-full">
 
@@ -82,10 +82,9 @@ const AdminLayout = () => {
                         to={item.to}
                         onClick={() => setSidebarOpen(false)}
                         className={({ isActive }) =>
-                            `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-                                isActive
-                                    ? "bg-orange-500 text-white shadow-md"
-                                    : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                            `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${isActive
+                                ? "bg-orange-500 text-white shadow-md"
+                                : "text-gray-400 hover:bg-gray-800 hover:text-white"
                             }`
                         }
                     >
@@ -113,12 +112,12 @@ const AdminLayout = () => {
                 />
             )}
 
-            {/* ✅ DESKTOP SIDEBAR — hamesha visible, fixed nahi */}
+            {/*  DESKTOP SIDEBAR — hamesha visible, fixed nahi */}
             <aside className="hidden lg:flex lg:flex-col w-64 bg-gray-900 text-white shadow-xl shrink-0">
                 <SidebarContent />
             </aside>
 
-            {/* ✅ MOBILE SIDEBAR — slide in/out */}
+            {/*  MOBILE SIDEBAR — slide in/out */}
             <aside
                 className={`fixed top-0 left-0 h-full w-64 bg-gray-900 text-white shadow-xl z-50 flex flex-col
                     transform transition-transform duration-300 lg:hidden

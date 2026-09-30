@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import Image1 from "../../assets/hero/women.png";
 import Image2 from "../../assets/hero/shopping.png";
 import Image3 from "../../assets/hero/sale.png";
 import Slider from "react-slick";
-import { Link } from "react-router-dom";
-import { FaArrowRight } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import { FaArrowRight, FaTimes } from "react-icons/fa";
 
 const ImageList = [
   {
@@ -33,7 +33,101 @@ const ImageList = [
   },
 ];
 
-const Hero = ({ handleOrderPopup }) => {
+// Yahan har offer ke liye "route" apne actual routes ke hisaab se set karo
+const OfferData = [
+  {
+    id: 1,
+    badge: "Men's Fashion",
+    title: "Upto 50% Off",
+    description: "Shirts, jackets & footwear at unbeatable prices.",
+    route: "/mens",
+    color: "from-blue-500 to-blue-600",
+  },
+  {
+    id: 2,
+    badge: "Women's Fashion",
+    title: "30% Off",
+    description: "Dresses, kurtis & accessories for every occasion.",
+    route: "/girls",
+    color: "from-pink-500 to-pink-600",
+  },
+  {
+    id: 3,
+    badge: "Mega Sale",
+    title: "70% Off",
+    description: "Electronics, clothing & accessories — biggest sale live.",
+    route: "/products",
+    color: "from-orange-500 to-orange-600",
+  },
+];
+
+// OfferPopup ab isi file ke andar local component hai — koi alag import nahi chahiye
+const OfferPopup = ({ isOpen, onClose }) => {
+  const navigate = useNavigate();
+
+  if (!isOpen) return null;
+
+  const handleOfferClick = (route) => {
+    onClose();
+    navigate(route);
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      onClick={onClose}
+    >
+      <div
+        className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-3xl p-6 sm:p-8"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-500 hover:text-orange-500 transition-colors"
+          aria-label="Close"
+        >
+          <FaTimes size={20} />
+        </button>
+
+        <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 dark:text-white mb-2">
+          Choose Your Offer
+        </h2>
+        <p className="text-center text-gray-500 dark:text-gray-400 mb-6 text-sm sm:text-base">
+          Pick a category to jump straight to the deal
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {OfferData.map((offer) => (
+            <button
+              key={offer.id}
+              onClick={() => handleOfferClick(offer.route)}
+              className="group text-left rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
+            >
+              <div className={`bg-gradient-to-r ${offer.color} p-4 text-white`}>
+                <span className="text-xs font-semibold uppercase tracking-wider opacity-90">
+                  {offer.badge}
+                </span>
+                <h3 className="text-xl font-bold mt-1">{offer.title}</h3>
+              </div>
+              <div className="p-4 bg-gray-50 dark:bg-gray-800">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  {offer.description}
+                </p>
+                <span className="inline-flex items-center gap-2 text-orange-500 font-semibold text-sm group-hover:gap-3 transition-all">
+                  Shop Now <FaArrowRight className="text-xs" />
+                </span>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Hero = () => {
+  const [showOfferPopup, setShowOfferPopup] = useState(false);
+
   var settings = {
     dots: true,
     arrows: false,
@@ -82,7 +176,8 @@ const Hero = ({ handleOrderPopup }) => {
                     </Link>
 
                     <button
-                      onClick={handleOrderPopup}
+                      type="button"
+                      onClick={() => setShowOfferPopup(true)}
                       className="bg-white dark:bg-gray-800 border-2 border-orange-500 text-orange-500 hover:bg-orange-50 dark:hover:bg-gray-700 hover:scale-105 duration-200 py-2.5 px-6 rounded-full text-sm font-semibold transition-all"
                     >
                       Claim Offer
@@ -103,6 +198,12 @@ const Hero = ({ handleOrderPopup }) => {
           ))}
         </Slider>
       </div>
+
+      {/* Offer selection popup */}
+      <OfferPopup
+        isOpen={showOfferPopup}
+        onClose={() => setShowOfferPopup(false)}
+      />
     </div>
   );
 };

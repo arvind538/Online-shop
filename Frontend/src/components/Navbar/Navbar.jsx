@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import Logo from "../../assets/logo.png";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../Store/auth";
-import { FaBars, FaTimes, FaShoppingCart, FaSearch, FaUser, FaSignOutAlt, FaChevronDown } from "react-icons/fa";
+import { FaBars, FaTimes, FaShoppingCart, FaSearch, FaUser, FaSignOutAlt, FaChevronDown, FaBoxOpen } from "react-icons/fa"; // Added FaBoxOpen for My Orders
 import { MdDashboard } from "react-icons/md";
 import DarkMode from "./DarkMode";
 
@@ -26,7 +26,7 @@ const Navbar = () => {
 
   const totalItems = cart?.reduce((total, item) => total + item.quantity, 0) || 0;
 
-  // ✅ Profile dropdown bahar click karne pe band ho
+  // Profile dropdown bahar click karne pe band ho
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
@@ -60,7 +60,7 @@ const Navbar = () => {
     setMobileOpen(false);
   };
 
-  // ✅ Username ka first letter avatar ke liye
+  // Username ka first letter avatar ke liye
   const getInitials = (name) => {
     if (!name) return "U";
     return name.charAt(0).toUpperCase();
@@ -73,7 +73,7 @@ const Navbar = () => {
       <div className="flex items-center justify-between px-4 md:px-6 py-3 max-w-7xl mx-auto gap-3 md:gap-4">
 
         {/* LOGO */}
-        <Link to="/" className="flex items-center gap-2 font-bold text-lg shrink-0">
+        <Link to="/#" className="flex items-center gap-2 font-bold text-lg shrink-0">
           <img src={Logo} alt="logo" className="w-8" />
           <span className="hidden sm:inline">Online_<span className="text-orange-500">Shop</span></span>
           <span className="sm:hidden">Online_<span className="text-orange-500">Shop</span></span>
@@ -136,7 +136,7 @@ const Navbar = () => {
             )}
           </NavLink>
 
-          {/* DARK MODE - now next to cart icon on all screen sizes */}
+          {/* DARK MODE */}
           <DarkMode />
 
           {/* DESKTOP AUTH */}
@@ -150,7 +150,7 @@ const Navbar = () => {
 
             {isLoggedIn ? (
               <>
-                {/* ✅ PROFILE DROPDOWN */}
+                {/* PROFILE DROPDOWN */}
                 <div className="relative" ref={profileRef}>
                   <button
                     onClick={() => setProfileOpen(!profileOpen)}
@@ -217,6 +217,14 @@ const Navbar = () => {
                           </NavLink>
                         )}
                         <NavLink
+                          to="/myorders"
+                          onClick={() => setProfileOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        >
+                          <FaBoxOpen className="text-blue-500 text-base" />
+                          My Orders
+                        </NavLink>
+                        <NavLink
                           to="/cart"
                           onClick={() => setProfileOpen(false)}
                           className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
@@ -268,7 +276,7 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* ✅ MOBILE/TABLET ALWAYS-VISIBLE SEARCH BAR (Flipkart/Amazon style) */}
+      {/* MOBILE/TABLET ALWAYS-VISIBLE SEARCH BAR */}
       <div className="md:hidden px-4 pb-3 relative">
         <form onSubmit={handleSearch} className="flex items-center gap-2">
           <div className="relative flex-1">
@@ -312,10 +320,9 @@ const Navbar = () => {
             key={item.id}
             to={item.link}
             className={({ isActive }) =>
-              `text-sm font-medium whitespace-nowrap transition-colors pb-0.5 ${
-                isActive
-                  ? "text-orange-500 border-b-2 border-orange-500"
-                  : "hover:text-orange-500"
+              `text-sm font-medium whitespace-nowrap transition-colors pb-0.5 ${isActive
+                ? "text-orange-500 border-b-2 border-orange-500"
+                : "hover:text-orange-500"
               }`
             }
           >
@@ -324,7 +331,7 @@ const Navbar = () => {
         ))}
       </nav>
 
-      {/* MOBILE MENU (hamburger ke andar — sirf nav links + auth, search ab yahan se hata diya) */}
+      {/* MOBILE MENU */}
       {mobileOpen && (
         <div className="md:hidden border-t dark:border-gray-700 bg-white dark:bg-gray-900">
 
@@ -336,8 +343,7 @@ const Navbar = () => {
                 to={item.link}
                 onClick={() => setMobileOpen(false)}
                 className={({ isActive }) =>
-                  `block py-3 border-b dark:border-gray-700 text-sm font-medium ${
-                    isActive ? "text-orange-500" : ""
+                  `block py-3 border-b dark:border-gray-700 text-sm font-medium ${isActive ? "text-orange-500" : ""
                   }`
                 }
               >
@@ -357,7 +363,7 @@ const Navbar = () => {
 
             {isLoggedIn ? (
               <>
-                {/* ✅ MOBILE PROFILE CARD */}
+                {/* MOBILE PROFILE CARD */}
                 <div className="bg-orange-50 dark:bg-orange-900/20 rounded-2xl p-4 my-2">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0">
@@ -393,9 +399,16 @@ const Navbar = () => {
                   </NavLink>
                 )}
                 <NavLink
+                  to="/myorders"
+                  onClick={() => setMobileOpen(false)}
+                  className="py-2.5 px-4 bg-blue-50 dark:bg-blue-900/20 text-blue-500 text-sm font-semibold rounded-full text-center hover:bg-blue-100 transition-colors flex items-center justify-center gap-2"
+                >
+                  <FaBoxOpen /> My Orders
+                </NavLink>
+                <NavLink
                   to="/logout"
                   onClick={() => setMobileOpen(false)}
-                  className="py-2.5 px-4 bg-red-50 dark:bg-red-900/20 text-red-500 text-sm font-semibold rounded-full text-center hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+                  className="py-2.5 px-4 bg-red-50 dark:bg-red-900/20 text-red-500 text-sm font-semibold rounded-full text-center hover:bg-red-100 transition-colors flex items-center justify-center gap-2 mt-1"
                 >
                   <FaSignOutAlt /> Logout
                 </NavLink>

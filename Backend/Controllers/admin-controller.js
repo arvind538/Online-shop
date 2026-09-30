@@ -4,7 +4,7 @@ const Contact = require("../models/contact-model");
 const getAllUsers = async (req, res) => {
     try {
         const users = await User.find({}, { password: 0 });
-        console.log(users);
+        // console.log(users);
 
         if (!users || users.length === 0) {
             return res.status(400).json({ message: "No User Found" })
@@ -57,7 +57,7 @@ const updateUserById = async (req, res) => {
 const getAllContacts = async (req, res) => {
     try {
         const contacts = await Contact.find();
-        console.log(contacts);
+        // console.log(contacts);
         if (!contacts || contacts.length === 0) {
             return res.status(401).json({ message: "No Contact Found" });
         }
