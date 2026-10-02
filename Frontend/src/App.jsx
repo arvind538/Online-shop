@@ -52,6 +52,15 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import "./App.css";
 import Collection from "./Pages/Collection";
+import AdminDashboard from "./Pages/Admin-Dashboard";
+import AdminOrders from "./Pages/Admin-Orders";
+import AdminProducts from "./Pages/Admin-Products";
+import AdminProfile from "./Pages/Admin-Profile";
+import Computer from "./Pages/Computer";
+import Mobile from "./Pages/Mobile";
+import SmartWatch from "./Pages/SmartWatch";
+import Camera from "./Pages/Camera";
+import AdminInventory from "./Pages/Admin-Inventory";
 
 // Home Page
 const HomePage = () => (
@@ -67,7 +76,7 @@ const HomePage = () => (
   </>
 );
 
-// Dashboard layout: Header, Navbar, Footer sirf login ke baad dikhenge
+// Main Layout: Header, Navbar, Footer sirf public website pages ke liye dikhenge
 const MainLayout = () => (
   <>
     <HeaderUp />
@@ -87,14 +96,16 @@ const App = () => {
   return (
     <div className="bg-white dark:bg-gray-900 dark:text-white duration-200 sm:max-w-full">
       <Routes>
-        {/* ========== LOGIN / REGISTER (bina login, koi Navbar nahi) ========== */}
+        {/* ========== PUBLIC ROUTES (Login / Register) ========== */}
         <Route element={<PublicRoute />}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Route>
 
-        {/* ========== DASHBOARD (sirf login ke baad) ========== */}
+        {/* ========== PROTECTED ROUTES ========== */}
         <Route element={<ProtectedRoute />}>
+
+          {/* 1. PUBLIC WEBSITE PAGES (Inme Header aur Footer aayega) */}
           <Route element={<MainLayout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/products" element={<NewProducts />} />
@@ -103,7 +114,7 @@ const App = () => {
             <Route path="/mens" element={<Mens />} />
             <Route path="/cloths" element={<Cloths />} />
             <Route path="/cart" element={<Cart />} />
-            <Route path="/process" element={<Process />} />
+            {/* <Route path="/process" element={<Process />} /> */}
             <Route path="/service" element={<Service />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/claim-now" element={<ClaimNow />} />
@@ -115,26 +126,45 @@ const App = () => {
             <Route path="/security" element={<Security />} />
             <Route path="/returns" element={<Returns />} />
             <Route path="/order-success" element={<OrderSuccess />} />
-            <Route path="/myorders" element={<MyOrders />} />
+            {/* <Route path="/myorders" element={<MyOrders />} /> */}
             <Route path="/collection" element={<Collection />} />
-
-            {/* Admin */}
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route path="users" element={<AdminUsers />} />
-              <Route path="contacts" element={<AdminContacts />} />
-              <Route path="users/:id/edit" element={<AdminUpdate />} />
-            </Route>
-
-            {/* 404 (bina login wale ko login pe hi bhejega) */}
-            <Route path="*" element={<ErrorPage />} />
+            <Route path="/computer" element={<Computer />} />
+            <Route path="/mobile" element={<Mobile />} />
+            <Route path="/smartwatch" element={<SmartWatch />} />
+            <Route path="/camera" element={<Camera />} />
+            
+            
           </Route>
+          
+            <Route path="/myorders" element={<MyOrders />} />
+            <Route path="/process" element={<Process />} /> 
+
+          {/* 2. ADMIN PANEL ROUTES (Inme koi public Header ya Footer nahi aayega, sirf AdminLayout rahega) */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="products" element={<AdminProducts />} />
+            <Route path="contacts" element={<AdminContacts />} />
+            <Route path="profile" element={<AdminProfile />} />
+            <Route path="inventory" element={<AdminInventory />} />
+            <Route path="users/:id/edit" element={<AdminUpdate />} />
+          </Route>
+
         </Route>
+
+        {/* ========== 404 ERROR PAGE ========== */}
+        <Route path="*" element={<ErrorPage />} />
       </Routes>
     </div>
   );
 };
 
 export default App;
+
+
+
+
 
 // import React from "react";
 // import { Routes, Route } from "react-router-dom";

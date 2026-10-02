@@ -30,32 +30,32 @@ const AdminContacts = () => {
     };
 
     const deleteContactById = async (id) => {
-    try {
-        const response = await fetch(`${API}/api/admin/contacts/${id}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: authorizationToken,
-            },
-        });
+        try {
+            const response = await fetch(`${API}/api/admin/contacts/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: authorizationToken,
+                },
+            });
 
-        // ✅ response text dekho pehle
-        const text = await response.text();
-        console.log("Delete response:", response.status, text);
+            // ✅ response text dekho pehle
+            const text = await response.text();
+            console.log("Delete response:", response.status, text);
 
-        if (!response.ok) {
-            toast.error(`Delete Failed! Status: ${response.status}`);
-            return;
+            if (!response.ok) {
+                toast.error(`Delete Failed! Status: ${response.status}`);
+                return;
+            }
+
+            toast.success("Deleted Successfully!");
+            getContactsData();
+
+        } catch (error) {
+            console.error("Delete error:", error);
+            toast.error("Network error");
         }
-
-        toast.success("Deleted Successfully!");
-        getContactsData();
-
-    } catch (error) {
-        console.error("Delete error:", error);
-        toast.error("Network error");
-    }
-};
+    };
 
     useEffect(() => {
         getContactsData();
@@ -92,7 +92,7 @@ const AdminContacts = () => {
                     </div>
                 </div>
 
-            /* Empty State */
+                /* Empty State */
             ) : contactData.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 text-center">
                     <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
@@ -102,7 +102,7 @@ const AdminContacts = () => {
                     <p className="text-sm text-gray-400 mt-1">Contact messages will appear here</p>
                 </div>
 
-            /* Cards Grid */
+                /* Cards Grid */
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                     {contactData.map((curContactData, index) => (

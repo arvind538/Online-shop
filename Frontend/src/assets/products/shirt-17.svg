@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="700" viewBox="0 0 600 700">
+<defs>
+<radialGradient id="bg" cx="50%" cy="42%" r="75%"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e9e4db"/></radialGradient>
+<linearGradient id="sh" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".12"/><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></linearGradient>
+</defs>
+<rect width="600" height="700" fill="url(#bg)"/>
+<text x="36" y="56" font-family="Arial, sans-serif" font-size="15" letter-spacing="3" fill="#8a8378">SHIRTS</text>
+<g transform="translate(0 25)">
+<ellipse cx="300" cy="516" rx="150" ry="14" fill="#000" opacity=".10"/>
+<path d="M200 140 L255 118 L300 165 L345 118 L400 140 L485 390 L435 405 L395 285 L395 490 L205 490 L205 285 L165 405 L115 390 Z" fill="#7a9cc6"/><path d="M200 140 L255 118 L300 165 L345 118 L400 140 L485 390 L435 405 L395 285 L395 490 L205 490 L205 285 L165 405 L115 390 Z" fill="url(#sh)"/><path d="M255 118 L300 165 L268 195 L232 138 Z" fill="#a7c9f3"/><path d="M345 118 L300 165 L332 195 L368 138 Z" fill="#a7c9f3"/><path d="M300 165 L300 490" stroke="#5779a3" stroke-width="3"/><circle cx="300" cy="225" r="5" fill="#fff" opacity=".9"/><circle cx="300" cy="275" r="5" fill="#fff" opacity=".9"/><circle cx="300" cy="325" r="5" fill="#fff" opacity=".9"/><circle cx="300" cy="375" r="5" fill="#fff" opacity=".9"/><circle cx="300" cy="425" r="5" fill="#fff" opacity=".9"/>
+</g>
+<text x="300" y="640" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" font-weight="600" fill="#3a3a3a">Tie-Up Crop Shirt</text>
+</svg>

@@ -13,6 +13,11 @@ const Menu = [
   { id: 4, name: "Cloths", link: "/cloths" },
   { id: 5, name: "For Mens", link: "/mens" },
   { id: 6, name: "For Girls", link: "/girls" },
+  { id: 7, name: "Computer", link: "/computer" },
+  { id: 8, name: "Mobile", link: "/mobile" },
+  { id: 9, name: "Smart Watch", link: "/smartwatch" },
+  { id: 10, name: "Camera", link: "/camera" },
+
 ];
 
 const Navbar = () => {
@@ -141,9 +146,9 @@ const Navbar = () => {
 
           {/* DESKTOP AUTH */}
           <div className="hidden md:flex items-center gap-4">
-            <NavLink to="/service" className="hover:text-orange-500 whitespace-nowrap text-sm font-medium transition-colors">
+            {/* <NavLink to="/service" className="hover:text-orange-500 whitespace-nowrap text-sm font-medium transition-colors">
               Service
-            </NavLink>
+            </NavLink> */}
             <NavLink to="/contact" className="hover:text-orange-500 whitespace-nowrap text-sm font-medium transition-colors">
               Contact
             </NavLink>

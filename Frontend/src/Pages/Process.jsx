@@ -1,9 +1,9 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../Store/auth";
 import {
   FaCreditCard, FaMoneyBillWave, FaWallet, FaMobileAlt, FaTag, FaLock,
-  FaCheckCircle, FaTimes, FaMapMarkerAlt, FaHome, FaBriefcase,
+  FaCheckCircle, FaTimes, FaMapMarkerAlt, FaHome, FaBriefcase, FaShoppingBag,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
 
@@ -52,14 +52,9 @@ const EMPTY_FORM = {
   addressType: "Home",
 };
 
-const loadSavedAddress = () => {
-  try {
-    const saved = localStorage.getItem("shippingAddress");
-    return saved ? { ...EMPTY_FORM, ...JSON.parse(saved) } : EMPTY_FORM;
-  } catch {
-    return EMPTY_FORM;
-  }
-};
+const EMPTY_CARD = { number: "", name: "", expiry: "", cvv: "" };
+
+const REQUIRED_FIELDS = ["fullName", "phone", "postalCode", "address", "city", "state"];
 
 const validateField = (name, value) => {
   const v = String(value || "").trim();
@@ -83,9 +78,7 @@ const validateField = (name, value) => {
   }
 };
 
-const REQUIRED_FIELDS = ["fullName", "phone", "postalCode", "address", "city", "state"];
-
-// Label + error wrapper (component bahar hai taaki typing ke time focus na jaye)
+// Label + error wrapper (defined outside so inputs don't lose focus while typing)
 const Field = ({ label, required, error, hint, children }) => (
   <div>
     <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">
@@ -100,8 +93,6 @@ const Field = ({ label, required, error, hint, children }) => (
   </div>
 );
 
-const loadRazorpayPlaceholder = null; // (test mode: no real gateway used)
-
 const Process = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -110,21 +101,24 @@ const Process = () => {
   const [selectedMethod, setSelectedMethod] = useState("upi");
   const [paying, setPaying] = useState(false);
 
-  // Address form
-  const [form, setForm] = useState(loadSavedAddress);
+  // Address form (always starts empty, and is cleared again after a successful order)
+  const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
-  const [saveAddress, setSaveAddress] = useState(true);
   const [pinLoading, setPinLoading] = useState(false);
   const fieldRefs = useRef({});
 
-  // Fake gateway modal state
-  const [showModal, setShowModal] = useState(false);
+  // Test gateway modal
+  const [showModal, setShowModal] = useState(false); // mounted
+  const [modalVisible, setModalVisible] = useState(false); // drives the animation
   const [step, setStep] = useState("form"); // form | processing
   const [modalError, setModalError] = useState("");
-  const [card, setCard] = useState({ number: "", name: "", expiry: "", cvv: "" });
+  const [card, setCard] = useState(EMPTY_CARD);
   const [upiApp, setUpiApp] = useState("");
   const [upiId, setUpiId] = useState("");
   const [wallet, setWallet] = useState("");
+
+  const closeTimer = useRef(null);
+  const mounted = useRef(true);
 
   const cart = location.state && location.state.length > 0 ? location.state : globalCart;
 
@@ -134,6 +128,73 @@ const Process = () => {
   const totalPrice = subtotal - discount;
   const totalItems = cart?.reduce((t, i) => t + (i.quantity || 1), 0) || 0;
   const amountForDiscount = Math.ceil(500 - subtotal);
+
+  // ---- Lifecycle helpers ----
+  useEffect(() => {
+    mounted.current = true;
+    // old versions saved the address in localStorage; clear it so the form is always fresh
+    try {
+      localStorage.removeItem("shippingAddress");
+    } catch {
+      /* ignore storage errors */
+    }
+    return () => {
+      mounted.current = false;
+      clearTimeout(closeTimer.current);
+    };
+  }, []);
+
+  // Esc closes the gateway, and the page behind it doesn't scroll while it is open
+  useEffect(() => {
+    if (!showModal) return;
+
+    const onKeyDown = (e) => {
+      if (e.key === "Escape" && step !== "processing") closeModal();
+    };
+    document.addEventListener("keydown", onKeyDown);
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = prevOverflow;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showModal, step]);
+
+  // ---- Modal open / close (smooth) ----
+  const openModal = () => {
+    clearTimeout(closeTimer.current);
+    setModalError("");
+    setStep("form");
+    setShowModal(true);
+    requestAnimationFrame(() => requestAnimationFrame(() => setModalVisible(true)));
+  };
+
+  const hideModal = () => {
+    setModalVisible(false);
+    clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => setShowModal(false), 200);
+  };
+
+  const closeModal = () => {
+    if (step === "processing") return;
+    hideModal();
+    toast.info("Payment cancelled");
+  };
+
+  // ---- Reset everything after a successful order ----
+  const resetCheckout = () => {
+    setForm(EMPTY_FORM);
+    setErrors({});
+    setCard(EMPTY_CARD);
+    setUpiApp("");
+    setUpiId("");
+    setWallet("");
+    setModalError("");
+    setSelectedMethod("upi");
+  };
 
   // ---- Address form handlers ----
   const lookupPincode = async (pin) => {
@@ -156,7 +217,7 @@ const Process = () => {
     } catch {
       // Network issue: user can fill city and state manually
     } finally {
-      setPinLoading(false);
+      if (mounted.current) setPinLoading(false);
     }
   };
 
@@ -241,20 +302,18 @@ const Process = () => {
   };
 
   const finishSuccess = (msg) => {
-    try {
-      if (saveAddress) localStorage.setItem("shippingAddress", JSON.stringify(form));
-      else localStorage.removeItem("shippingAddress");
-    } catch {
-      /* ignore storage errors */
-    }
     toast.success(msg);
-    if (clearCart) clearCart();
+    resetCheckout(); // form + payment fields go back to empty
+    setModalVisible(false);
     setShowModal(false);
+    if (clearCart) clearCart();
     navigate("/myorders", { replace: true });
   };
 
   // ---- Pay button ----
   const handlePayment = async () => {
+    if (paying) return;
+
     if (!token) {
       toast.error("Please log in to place an order!");
       navigate("/login");
@@ -275,15 +334,13 @@ const Process = () => {
         console.error("COD Error:", err);
         toast.error(err.message || "Server connection failed!");
       } finally {
-        setPaying(false);
+        if (mounted.current) setPaying(false);
       }
       return;
     }
 
     // Online methods: open the test gateway
-    setModalError("");
-    setStep("form");
-    setShowModal(true);
+    openModal();
   };
 
   // ---- Test gateway: validate + process ----
@@ -336,6 +393,8 @@ const Process = () => {
 
     // Simulate waiting for the bank's response
     setTimeout(async () => {
+      if (!mounted.current) return;
+
       if (shouldFail) {
         setStep("form");
         setModalError("Payment failed. Your bank declined the transaction. Please try again.");
@@ -344,29 +403,26 @@ const Process = () => {
       try {
         await saveOrder(label);
         finishSuccess("Payment successful! Order placed");
-      } catch (err) {
-        console.error("Save Order Error:", err);
+      } catch (error) {
+        console.error("Save Order Error:", error);
+        if (!mounted.current) return;
         setStep("form");
-        setModalError(err.message || "Order could not be saved. Please check the backend.");
+        setModalError(error.message || "Order could not be saved. Please check the backend.");
       }
     }, upiApp && !upiId ? 3500 : 2000);
-  };
-
-  const closeModal = () => {
-    if (step === "processing") return;
-    setShowModal(false);
-    toast.info("Payment cancelled");
   };
 
   // ---- Card input formatters ----
   const onCardNumber = (e) => {
     const digits = e.target.value.replace(/\D/g, "").slice(0, 16);
-    setCard({ ...card, number: digits.replace(/(.{4})/g, "$1 ").trim() });
+    setCard((prev) => ({ ...prev, number: digits.replace(/(.{4})/g, "$1 ").trim() }));
+    setModalError("");
   };
   const onExpiry = (e) => {
     let d = e.target.value.replace(/\D/g, "").slice(0, 4);
     if (d.length >= 3) d = d.slice(0, 2) + "/" + d.slice(2);
-    setCard({ ...card, expiry: d });
+    setCard((prev) => ({ ...prev, expiry: d }));
+    setModalError("");
   };
 
   if (!cart || cart.length === 0) {
@@ -386,11 +442,22 @@ const Process = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">Checkout</h2>
-        <p className="text-gray-400 text-sm mt-1 flex items-center justify-center gap-1">
-          <FaLock className="text-xs" /> Complete your order securely
-        </p>
+      {/* Header: title on the left, Continue Shopping on the right */}
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">Confirm details</h2>
+          <p className="text-gray-400 text-sm mt-1 flex items-center gap-1">
+            <FaLock className="text-xs" /> Complete your order securely
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-orange-500 text-orange-600 dark:text-orange-400 text-sm font-semibold hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors"
+        >
+          <FaShoppingBag /> Continue shopping
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -403,7 +470,7 @@ const Process = () => {
 
             <div className="space-y-4 max-h-64 overflow-y-auto pr-1">
               {cart.map((item, index) => (
-                <div key={index} className="flex items-center gap-3 border-b dark:border-gray-700 pb-3">
+                <div key={item._id || item.id || index} className="flex items-center gap-3 border-b dark:border-gray-700 pb-3">
                   {item.image && <img src={item.image} alt="product" className="w-14 h-14 object-cover rounded-xl shrink-0" />}
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-gray-800 dark:text-white text-sm truncate">{item.title || item.name}</p>
@@ -581,16 +648,6 @@ const Process = () => {
                   ))}
                 </div>
               </div>
-
-              <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={saveAddress}
-                  onChange={(e) => setSaveAddress(e.target.checked)}
-                  className="accent-orange-500 w-4 h-4"
-                />
-                Save this address for next time
-              </label>
             </div>
           </div>
         </div>
@@ -642,10 +699,24 @@ const Process = () => {
 
       {/* ============ TEST PAYMENT GATEWAY MODAL ============ */}
       {showModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center px-4">
-          <div className="bg-white dark:bg-gray-800 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          {/* Backdrop */}
+          <div
+            onClick={closeModal}
+            className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-200 motion-reduce:transition-none ${modalVisible ? "opacity-100" : "opacity-0"
+              }`}
+          />
+
+          {/* Dialog */}
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Payment"
+            className={`relative bg-white dark:bg-gray-800 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl transition-all duration-200 ease-out motion-reduce:transition-none ${modalVisible ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-2"
+              }`}
+          >
             {/* Header */}
-            <div className="bg-orange-500 text-white px-5 py-4 flex items-center justify-between">
+            <div className="bg-orange-500 text-white px-5 py-4 flex items-center justify-between rounded-t-2xl">
               <div>
                 <p className="font-bold">Online Shop</p>
                 <p className="text-xs opacity-90">Test Payment Gateway</p>
@@ -682,12 +753,20 @@ const Process = () => {
                   {selectedMethod === "card" && (
                     <div className="space-y-3">
                       <input value={card.number} onChange={onCardNumber} placeholder="Card Number" inputMode="numeric" className={modalInput} />
-                      <input value={card.name} onChange={(e) => setCard({ ...card, name: e.target.value })} placeholder="Name on Card" className={modalInput} />
+                      <input
+                        value={card.name}
+                        onChange={(e) => { setCard((prev) => ({ ...prev, name: e.target.value })); setModalError(""); }}
+                        placeholder="Name on Card"
+                        className={modalInput}
+                      />
                       <div className="grid grid-cols-2 gap-3">
                         <input value={card.expiry} onChange={onExpiry} placeholder="MM/YY" inputMode="numeric" className={modalInput} />
                         <input
                           value={card.cvv}
-                          onChange={(e) => setCard({ ...card, cvv: e.target.value.replace(/\D/g, "").slice(0, 3) })}
+                          onChange={(e) => {
+                            setCard((prev) => ({ ...prev, cvv: e.target.value.replace(/\D/g, "").slice(0, 3) }));
+                            setModalError("");
+                          }}
                           placeholder="CVV"
                           type="password"
                           inputMode="numeric"
@@ -709,6 +788,7 @@ const Process = () => {
                           {upiApps.map((app) => (
                             <button
                               key={app.id}
+                              type="button"
                               onClick={() => { setUpiApp(app.id); setUpiId(""); setModalError(""); }}
                               className={`rounded-xl border-2 p-3 text-center transition ${upiApp === app.id ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20" : "border-gray-200 dark:border-gray-700"
                                 }`}
@@ -744,6 +824,7 @@ const Process = () => {
                       {wallets.map((w) => (
                         <button
                           key={w.id}
+                          type="button"
                           onClick={() => { setWallet(w.id); setModalError(""); }}
                           className={`w-full flex items-center gap-3 rounded-xl border-2 p-3 transition ${wallet === w.id ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20" : "border-gray-200 dark:border-gray-700"
                             }`}

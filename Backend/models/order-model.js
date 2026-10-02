@@ -15,6 +15,11 @@ const orderSchema = new mongoose.Schema(
                 price: { type: Number, required: true },
             },
         ],
+        status: {
+            type: String,
+            enum: ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"],
+            default: "Pending",
+        },
         shippingAddress: {
             fullName: { type: String, default: "" },
             phone: { type: String, default: "" },

@@ -12,6 +12,8 @@ const contactRoute = require("./Router/contact-router");
 const serviceRoute = require("./Router/service-router");
 const adminRoute = require("./Router/admin-router");
 const orderRoute = require("./Router/order-router");
+const adminOrderRoute = require("./Router/admin-order-router");
+const inventoryRouter = require("./Router/inventory-router");
 
 // Middleware import
 const errorMiddleware = require("./Middlewares/error-middleware");
@@ -36,7 +38,12 @@ app.use("/api/auth", authRoute);
 app.use("/api/form", contactRoute);
 app.use("/api/data", serviceRoute);
 app.use("/api/admin", adminRoute);
+app.use("/api/admin/orders", adminOrderRoute);
 app.use("/api/orders", orderRoute);
+app.use("/api", inventoryRouter);
+
+
+
 
 // 5. Default Route
 app.use("/api/health", (req, res) => {
