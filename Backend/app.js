@@ -1,5 +1,5 @@
-const dns = require('dns');
-dns.setServers(['8.8.8.8', '8.8.4.4']);
+const dns = require("dns");
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 require("dotenv").config();
 const express = require("express");
@@ -18,69 +18,66 @@ const inventoryRouter = require("./Router/inventory-router");
 // Middleware import
 const errorMiddleware = require("./Middlewares/error-middleware");
 
-// 1. Sabse pehle Express app ko initialize karna zaroori hai!
 const app = express();
 
-// 2. CORS Configuration
-// app.use(
-//     cors({
-//         origin:
-//             'http://localhost:5173',
-//         'https://online-shop-website-lake.vercel.app'
-//         methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-//         credentials: true,
-//     })
-// );
-
+// CORS Configuration
 const allowedOrigins = [
-    'http://localhost:5173',
-    'https://online-shop-website-lake.vercel.app'
+    "http://localhost:5173",
+    "https://online-shop-website-lake.vercel.app",
 ];
 
-app.use(cors({
+const corsOptions = {
     origin: function (origin, callback) {
-        // Mobile apps ya curl/postman ke liye (!origin) allow karein
-        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        // Postman / curl / mobile apps ke liye (!origin) allow
+        if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
-            callback(new Error('Blocked by CORS'));
+            const err = new Error("Blocked by CORS");
+            err.status = 403;
+            callback(err);
         }
     },
-    credentials: true, // Cookies aur auth headers bhejne ke liye zaroori hai
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
-}));
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+};
 
-// 3. Express JSON body parser
+app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions)); // preflight handle
+
+// Body parser
 app.use(express.json());
 
-// 4. Mount Routers
-app.use("/api/auth", authRoute);
-app.use("/api/form", contactRoute);
-app.use("/api/data", serviceRoute);
-app.use("/api/admin", adminRoute);
-app.use("/api/admin/orders", adminOrderRoute);
-app.use("/api/orders", orderRoute);
-app.use("/api", inventoryRouter);
-
-
-
-
-// 5. Default Route
-app.use("/api/health", (req, res) => {
+// Health check (sabse pehle, kisi middleware se block na ho)
+app.get("/api/health", (req, res) => {
     res.status(200).json({ message: "success" });
 });
 
-// 6. Error Handling Middleware (Hamesha saare routes ke baad aakhri me aayega)
+// Routers (specific routes pehle, generic baad mein)
+app.use("/api/auth", authRoute);
+app.use("/api/form", contactRoute);
+app.use("/api/data", serviceRoute);
+app.use("/api/admin/orders", adminOrderRoute); // /api/admin se pehle
+app.use("/api/admin", adminRoute);
+app.use("/api/orders", orderRoute);
+app.use("/api", inventoryRouter); // generic mount sabse last
+
+// Error middleware (hamesha last mein)
 app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 4041;
 
-// 7. Database Connection & Server Start
-connectDB().then(() => {
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
+// DB connect + server start
+connectDB()
+    .then(() => {
+        app.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+    })
+    .catch((err) => {
+        console.error("DB connection failed:", err.message);
+        process.exit(1);
     });
-});
 
 
 
