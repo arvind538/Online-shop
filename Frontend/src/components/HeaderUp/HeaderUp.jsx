@@ -12,7 +12,7 @@ const HeaderUp = () => {
   const [visible, setVisible] = useState(true);
   const [current, setCurrent] = useState(0);
 
-  // ✅ Auto scroll — har 3 second mein next offer
+  //  Auto scroll — har 3 second mein next offer
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % offers.length);
@@ -78,11 +78,10 @@ const HeaderUp = () => {
           <button
             key={i}
             onClick={() => setCurrent(i)}
-            className={`rounded-full transition-all duration-300 ${
-              i === current
+            className={`rounded-full transition-all duration-300 ${i === current
                 ? "w-4 h-1.5 bg-white"
                 : "w-1.5 h-1.5 bg-white/40"
-            }`}
+              }`}
           />
         ))}
       </div>

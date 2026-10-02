@@ -21,6 +21,14 @@ const Menu = [
 ];
 
 const Navbar = () => {
+  const handleScrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+
   const { isLoggedIn, cart, user } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -71,6 +79,8 @@ const Navbar = () => {
     return name.charAt(0).toUpperCase();
   };
 
+
+
   return (
     <header className="shadow-md bg-white dark:bg-gray-900 dark:text-white sticky top-0 z-50">
 
@@ -78,7 +88,7 @@ const Navbar = () => {
       <div className="flex items-center justify-between px-4 md:px-6 py-3 max-w-7xl mx-auto gap-3 md:gap-4">
 
         {/* LOGO */}
-        <Link to="/#" className="flex items-center gap-2 font-bold text-lg shrink-0">
+        <Link to="/" onClick={handleScrollToTop} className="flex items-center gap-2 font-bold text-lg shrink-0">
           <img src={Logo} alt="logo" className="w-8" />
           <span className="hidden sm:inline">Online_<span className="text-orange-500">Shop</span></span>
           <span className="sm:hidden">Online_<span className="text-orange-500">Shop</span></span>

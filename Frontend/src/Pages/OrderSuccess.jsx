@@ -12,7 +12,7 @@ const OrderSuccess = () => {
             <div className="text-center py-20">
                 <p className="text-gray-500 mb-4">Koi order details nahi mili.</p>
                 <button onClick={() => navigate('/')} className="bg-orange-500 text-white px-6 py-2 rounded">
-                    Home jayein
+                    Home redirect
                 </button>
             </div>
         );

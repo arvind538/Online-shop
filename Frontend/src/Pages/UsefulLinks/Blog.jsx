@@ -163,7 +163,7 @@ const Blog = () => {
                                     <span className="font-medium">{featuredPost.author}</span>
                                 </div>
                                 <Link
-                                    to={`/blog/${featuredPost.id}`}
+                                    to={`/#/${featuredPost.id}`}
                                     onClick={handleScrollToTop}
                                     className="inline-flex items-center gap-2 text-sm font-semibold text-orange-500 hover:text-orange-600 transition-colors group"
                                 >
@@ -257,7 +257,7 @@ const Blog = () => {
                                             By {post.author}
                                         </span>
                                         <Link
-                                            to={`/blog/${post.id}`}
+                                            to={`/#/${post.id}`}
                                             onClick={handleScrollToTop}
                                             className="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-500 hover:text-orange-600 transition-colors"
                                         >
