@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import Logo from "../../assets/logo.png";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../Store/auth";
-import { FaBars, FaTimes, FaShoppingCart, FaSearch, FaUser, FaSignOutAlt, FaChevronDown, FaBoxOpen } from "react-icons/fa"; // Added FaBoxOpen for My Orders
+import { FaBars, FaTimes, FaShoppingCart, FaSearch, FaSignOutAlt, FaChevronDown, FaBoxOpen } from "react-icons/fa";
 import { MdDashboard } from "react-icons/md";
 import DarkMode from "./DarkMode";
 
@@ -17,7 +17,6 @@ const Menu = [
   { id: 8, name: "Mobile", link: "/mobile" },
   { id: 9, name: "Smart Watch", link: "/smartwatch" },
   { id: 10, name: "Camera", link: "/camera" },
-
 ];
 
 const Navbar = () => {
@@ -27,7 +26,6 @@ const Navbar = () => {
       behavior: "smooth",
     });
   };
-
 
   const { isLoggedIn, cart, user } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -49,6 +47,17 @@ const Navbar = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Mobile menu khula ho to peeche ka page scroll lock karo
+  useEffect(() => {
+    if (mobileOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [mobileOpen]);
 
   const handleChange = (e) => {
     const value = e.target.value;
@@ -78,8 +87,6 @@ const Navbar = () => {
     if (!name) return "U";
     return name.charAt(0).toUpperCase();
   };
-
-
 
   return (
     <header className="shadow-md bg-white dark:bg-gray-900 dark:text-white sticky top-0 z-50">
@@ -156,9 +163,6 @@ const Navbar = () => {
 
           {/* DESKTOP AUTH */}
           <div className="hidden md:flex items-center gap-4">
-            {/* <NavLink to="/service" className="hover:text-orange-500 whitespace-nowrap text-sm font-medium transition-colors">
-              Service
-            </NavLink> */}
             <NavLink to="/contact" className="hover:text-orange-500 whitespace-nowrap text-sm font-medium transition-colors">
               Contact
             </NavLink>
@@ -346,9 +350,13 @@ const Navbar = () => {
         ))}
       </nav>
 
-      {/* MOBILE MENU */}
+      {/* MOBILE MENU — scrollable */}
       {mobileOpen && (
-        <div className="md:hidden border-t dark:border-gray-700 bg-white dark:bg-gray-900">
+        <div
+          className="md:hidden border-t dark:border-gray-700 bg-white dark:bg-gray-900
+                     max-h-[calc(100dvh-120px)] overflow-y-auto overscroll-contain
+                     [-webkit-overflow-scrolling:touch]"
+        >
 
           {/* MOBILE NAV LINKS */}
           <div className="px-4 pt-2 pb-2">
@@ -368,7 +376,7 @@ const Navbar = () => {
           </div>
 
           {/* MOBILE AUTH */}
-          <div className="px-4 pt-2 pb-4 flex flex-col gap-2">
+          <div className="px-4 pt-2 pb-6 flex flex-col gap-2">
             <NavLink to="/service" onClick={() => setMobileOpen(false)} className="py-3 border-b dark:border-gray-700 text-sm font-medium">
               Service
             </NavLink>
