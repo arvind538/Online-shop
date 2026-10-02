@@ -23,7 +23,8 @@ const app = express();
 // CORS Configuration
 const allowedOrigins = [
     "http://localhost:5173",
-    "https://online-shop-website-lake.vercel.app",
+
+
 ];
 
 const corsOptions = {
@@ -44,6 +45,9 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.options(/.*/, cors(corsOptions)); // preflight handle
+
+
+
 
 // Body parser
 app.use(express.json());

@@ -1,8 +1,10 @@
 node scripts/download-photos.mjs --only=cloth
 node scripts/download-photos.mjs --only=pant
 
+PEXELS_KEY="g0PZCTaVb6u0UOfkabY6XEnF4HFkt0t9AxV6t0wflI0"
+
 node scripts/download-photos.mjs  
-->image download kr ne keliya proepr use kre
+->image download krne keliya proper use kre
 
 $env:UNSPLASH_KEY="g0PZCTaVb6u0UOfkabY6XEnF4HFkt0t9AxV6t0wflI0"
 

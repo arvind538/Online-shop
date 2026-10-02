@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_APP_URL_API || "https://online-shop-website-21.onrender.com";
+const BASE_URL = import.meta.env.VITE_APP_URL_API;
 const API_URL = `${BASE_URL}/api`;
 const TIMEOUT = 15000; // 15 sec me response na aaye to error
 

@@ -94,7 +94,7 @@ const Mens = () => {
   const tabIdle = "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white";
 
   return (
-    <section className="py-14 px-4 bg-slate-50/70 dark:bg-gray-950 min-h-screen">
+    <section className="py-10 px-2 bg-slate-50/70 dark:bg-gray-950 min-h-screen">
       <style>{`
         @keyframes mensFadeIn {
           from { opacity: 0; transform: translateY(10px); }
@@ -119,20 +119,20 @@ const Mens = () => {
         </div>
 
         {/* Tab bar (Cloths page jaisa): For Men active, baaki Cloths page par le jaate hain */}
-        <div className="max-w-md mx-auto mb-5 grid grid-cols-3 gap-1 p-1 rounded-2xl bg-gray-200/70 dark:bg-gray-800">
+        {/* <div className="max-w-md mx-auto mb-5 grid grid-cols-3 gap-1 p-1 rounded-2xl bg-gray-200/70 dark:bg-gray-800">
           <Link to={CLOTHS_ROUTE} className={`${tabBase} ${tabIdle}`}>
             All <span className="opacity-60">({ALL_CLOTHES_COUNT})</span>
           </Link>
-          <span
+          {/* <span
             aria-current="page"
             className={`${tabBase} bg-white dark:bg-gray-950 text-orange-600 shadow-sm`}
           >
             For Men <span className="opacity-60">({MEN.length})</span>
-          </span>
-          <Link to={`${CLOTHS_ROUTE}?for=women`} className={`${tabBase} ${tabIdle}`}>
+          </span> */}
+        {/* <Link to={`${CLOTHS_ROUTE}?for=women`} className={`${tabBase} ${tabIdle}`}>
             For Girls <span className="opacity-60">({GIRLS_COUNT})</span>
           </Link>
-        </div>
+        </div>  */}
 
         {/* Type chips + sort */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">

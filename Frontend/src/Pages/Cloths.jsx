@@ -107,7 +107,7 @@ const Cloths = () => {
   };
 
   return (
-    <section className="py-14 px-4 bg-slate-50/70 dark:bg-gray-950 min-h-screen">
+    <section className="py-10 px-2 bg-slate-50/70 dark:bg-gray-950 min-h-screen">
       <style>{`
         @keyframes clothFadeIn {
           from { opacity: 0; transform: translateY(10px); }
@@ -132,7 +132,7 @@ const Cloths = () => {
         </div>
 
         {/* Gender tabs */}
-        <div className="max-w-md mx-auto mb-5 grid grid-cols-3 gap-1 p-1 rounded-2xl bg-gray-200/70 dark:bg-gray-800">
+        {/* <div className="max-w-md mx-auto mb-5 grid grid-cols-3 gap-1 p-1 rounded-2xl bg-gray-200/70 dark:bg-gray-800">
           {GENDERS.map((g) => (
             <button
               key={g.key}
@@ -145,7 +145,7 @@ const Cloths = () => {
               {g.label} <span className="opacity-60">({genderCounts[g.key]})</span>
             </button>
           ))}
-        </div>
+        </div> */}
 
         {/* Type chips + sort */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">

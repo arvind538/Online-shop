@@ -3,7 +3,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const API = import.meta.env.VITE_APP_URL_API || "https://online-shop-website-21.onrender.com";
+    const API = import.meta.env.VITE_APP_URL_API;
 
     const [token, setToken] = useState(localStorage.getItem("token") || "");
     const [user, setUser] = useState(null);

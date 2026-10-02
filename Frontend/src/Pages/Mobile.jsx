@@ -65,7 +65,7 @@ const Mobile = () => {
     };
 
     return (
-        <section className="py-10 sm:py-14 px-3 sm:px-6 bg-slate-50/70 dark:bg-gray-950 min-h-screen">
+        <section className="py-10 sm:py-10 px-3 sm:px-6 bg-slate-50/70 dark:bg-gray-950 min-h-screen">
             <style>{`
         @keyframes mobileFadeIn {
           from { opacity: 0; transform: translateY(10px); }
