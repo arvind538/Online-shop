@@ -22,13 +22,33 @@ const errorMiddleware = require("./Middlewares/error-middleware");
 const app = express();
 
 // 2. CORS Configuration
-app.use(
-    cors({
-        origin: process.env.FRONTEND_URI,
-        methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-        credentials: true,
-    })
-);
+// app.use(
+//     cors({
+//         origin:
+//             'http://localhost:5173',
+//         'https://online-shop-website-lake.vercel.app'
+//         methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+//         credentials: true,
+//     })
+// );
+
+const allowedOrigins = [
+    'http://localhost:5173',
+    'https://online-shop-website-lake.vercel.app'
+];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        // Mobile apps ya curl/postman ke liye (!origin) allow karein
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Blocked by CORS'));
+        }
+    },
+    credentials: true, // Cookies aur auth headers bhejne ke liye zaroori hai
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+}));
 
 // 3. Express JSON body parser
 app.use(express.json());
