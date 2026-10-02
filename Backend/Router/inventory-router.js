@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const authMiddleware = require("../middlewares/auth-middleware");
-const adminMiddleware = require("../middlewares/admin-middleware");
+const authMiddleware = require("../Middlewares/auth-middleware");
+const adminMiddleware = require("../Middlewares/admin-middleware");
 const {
     getPublicStock, getInventory, syncCatalogue, updateStock,
 } = require("../Controllers/inventory-controller");
