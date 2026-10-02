@@ -23,6 +23,7 @@ const app = express();
 // CORS Configuration
 const allowedOrigins = [
     "http://localhost:5173",
+    "https://online-shop-3-rali.onrender.com",
 
 
 ];
