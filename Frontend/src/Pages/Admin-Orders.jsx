@@ -1,13 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FaChevronDown, FaSearch, FaSyncAlt } from "react-icons/fa";
+import { FaBell, FaChevronDown, FaSearch, FaSyncAlt, FaTimes } from "react-icons/fa";
 import { getErrorMessage } from "../lib/api";
 import { adminService } from "../lib/services";
 
 import {
     STATUSES, STATUS_STYLES, fmtDate, inr, onImgError, IMG_FALLBACK,
 } from "../lib/adminUtils";
+
+const POLL_MS = 10000; // har 10 sec me naye orders check
 
 // Har status ke baad admin kya kya kar sakta hai
 const NEXT_ACTIONS = {
@@ -42,22 +44,93 @@ const AdminOrders = () => {
     const [expandedId, setExpandedId] = useState(null);
     const [updatingId, setUpdatingId] = useState(null);
 
-    const loadOrders = async () => {
-        setLoading(true);
-        try {
-            const data = await adminService.getOrders();
-            setOrders(Array.isArray(data) ? data : []);
-        } catch (error) {
-            console.error("Load orders error:", error);
-            toast.error(getErrorMessage(error, "Failed to load orders"));
-        } finally {
-            setLoading(false);
-        }
+    // Naye order ka popup + highlight
+    const [alertInfo, setAlertInfo] = useState(null); // { count, latest }
+    const [newIds, setNewIds] = useState(() => new Set());
+
+    const knownIds = useRef(new Set());
+    const firstLoad = useRef(true);
+    const refreshRef = useRef(refreshStats);
+    refreshRef.current = refreshStats;
+
+    const notifyNew = useCallback((fresh) => {
+        const sorted = [...fresh].sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        const latest = sorted[0];
+        const name = latest.user?.username || latest.shippingAddress?.fullName || "a customer";
+
+        setNewIds((prev) => new Set([...prev, ...fresh.map((o) => o._id)]));
+        setAlertInfo((prev) => ({
+            count: (prev?.count || 0) + fresh.length,
+            latest,
+        }));
+
+        toast.success(
+            fresh.length === 1
+                ? `🛒 New order from ${name} · ${inr(latest.totalPrice)}`
+                : `🛒 ${fresh.length} new orders received`,
+            { autoClose: 6000 }
+        );
+        refreshRef.current?.();
+    }, []);
+
+    const loadOrders = useCallback(
+        async (silent = false) => {
+            if (!silent) setLoading(true);
+            try {
+                const data = await adminService.getOrders();
+                const list = Array.isArray(data) ? data : [];
+
+                // Pehli load pe popup nahi, uske baad jo naya aaye uska popup
+                if (!firstLoad.current) {
+                    const fresh = list.filter((o) => !knownIds.current.has(o._id));
+                    if (fresh.length > 0) notifyNew(fresh);
+                }
+                knownIds.current = new Set(list.map((o) => o._id));
+                firstLoad.current = false;
+
+                setOrders(list);
+            } catch (error) {
+                console.error("Load orders error:", error);
+                if (!silent) toast.error(getErrorMessage(error, "Failed to load orders"));
+            } finally {
+                if (!silent) setLoading(false);
+            }
+        },
+        [notifyNew]
+    );
+
+    // Pehli load + auto refresh
+    useEffect(() => {
+        loadOrders(false);
+
+        const id = setInterval(() => {
+            if (!document.hidden) loadOrders(true);
+        }, POLL_MS);
+
+        const onVisible = () => {
+            if (!document.hidden) loadOrders(true);
+        };
+        document.addEventListener("visibilitychange", onVisible);
+
+        return () => {
+            clearInterval(id);
+            document.removeEventListener("visibilitychange", onVisible);
+        };
+    }, [loadOrders]);
+
+    const dismissAlert = () => {
+        setAlertInfo(null);
+        setNewIds(new Set());
     };
 
-    useEffect(() => {
-        loadOrders();
-    }, []);
+    const viewNew = () => {
+        setFilter("Pending");
+        setQuery("");
+        setAlertInfo(null); // popup band, highlight list me rehta hai
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
 
     const changeStatus = async (order, status) => {
         if (status === "Cancelled" && !window.confirm("Cancel this order? This cannot be undone.")) return;
@@ -72,6 +145,13 @@ const AdminOrders = () => {
                         : o
                 )
             );
+            // Jis order pe action liya, uska NEW highlight hata do
+            setNewIds((prev) => {
+                if (!prev.has(order._id)) return prev;
+                const next = new Set(prev);
+                next.delete(order._id);
+                return next;
+            });
             toast.success(data.message || `Order ${status}`);
             refreshStats?.();
         } catch (error) {
@@ -106,15 +186,69 @@ const AdminOrders = () => {
         });
     }, [orders, filter, query]);
 
+    const latest = alertInfo?.latest;
+    const latestName = latest?.user?.username || latest?.shippingAddress?.fullName || "A customer";
+
     return (
         <section className="space-y-5">
+            {/* ===== NEW ORDER POPUP ===== */}
+            {alertInfo && latest && (
+                <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[60] w-[92%] max-w-md">
+                    <div className="bg-white dark:bg-gray-900 border border-orange-200 dark:border-orange-500/40 rounded-2xl shadow-2xl p-4 flex items-start gap-3 animate-bounce-once">
+                        <div className="w-11 h-11 rounded-full bg-orange-500 text-white flex items-center justify-center shrink-0">
+                            <FaBell />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <p className="font-bold text-gray-800 dark:text-white text-sm">
+                                {alertInfo.count > 1
+                                    ? `${alertInfo.count} new orders received`
+                                    : "New order received"}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-0.5 truncate">
+                                {latestName} · {inr(latest.totalPrice)} ·{" "}
+                                {latest.orderItems?.length || 0} item
+                                {(latest.orderItems?.length || 0) !== 1 ? "s" : ""}
+                            </p>
+                            <div className="flex gap-2 mt-3">
+                                <button
+                                    onClick={viewNew}
+                                    className="px-4 py-1.5 rounded-full bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold transition-colors"
+                                >
+                                    View orders
+                                </button>
+                                <button
+                                    onClick={dismissAlert}
+                                    className="px-4 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-xs font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                                >
+                                    Dismiss
+                                </button>
+                            </div>
+                        </div>
+                        <button
+                            onClick={dismissAlert}
+                            className="p-1.5 text-gray-400 hover:text-gray-600 shrink-0"
+                            aria-label="Close"
+                        >
+                            <FaTimes />
+                        </button>
+                    </div>
+                    <style>{`
+                        @keyframes popIn {
+                            0% { opacity: 0; transform: translateY(-16px) scale(.96); }
+                            100% { opacity: 1; transform: translateY(0) scale(1); }
+                        }
+                        .animate-bounce-once { animation: popIn .35s ease both; }
+                    `}</style>
+                </div>
+            )}
+
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                     <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Orders</h2>
                     <p className="text-sm text-gray-500 mt-1">Review, confirm and track customer orders</p>
                 </div>
                 <button
-                    onClick={loadOrders}
+                    onClick={() => loadOrders(false)}
                     className="flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:shadow-md transition"
                 >
                     <FaSyncAlt className={loading ? "animate-spin" : ""} /> Refresh
@@ -170,11 +304,15 @@ const AdminOrders = () => {
                         const busy = updatingId === o._id;
                         const actions = NEXT_ACTIONS[status] || [];
                         const customer = o.user?.username || addr.fullName || "Unknown";
+                        const isNew = newIds.has(o._id);
 
                         return (
                             <div
                                 key={o._id}
-                                className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300"
+                                className={`bg-white dark:bg-gray-900 rounded-2xl border hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 ${isNew
+                                    ? "border-orange-400 ring-2 ring-orange-300 dark:ring-orange-500/50"
+                                    : "border-gray-200 dark:border-gray-800"
+                                    }`}
                             >
                                 {/* Top */}
                                 <div className="p-5 flex flex-wrap items-start justify-between gap-4">
@@ -186,6 +324,11 @@ const AdminOrders = () => {
                                             <p className="font-semibold text-gray-800 dark:text-white truncate">
                                                 {customer}{" "}
                                                 <span className="text-xs font-normal text-gray-400">#{o._id.slice(-8)}</span>
+                                                {isNew && (
+                                                    <span className="ml-2 text-[10px] font-bold bg-orange-500 text-white px-2 py-0.5 rounded-full align-middle">
+                                                        NEW
+                                                    </span>
+                                                )}
                                             </p>
                                             <p className="text-xs text-gray-500 truncate">
                                                 {o.user?.email || "-"} · {fmtDate(o.createdAt)}
