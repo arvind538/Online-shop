@@ -354,71 +354,46 @@ const Navbar = () => {
       {mobileOpen && (
         <div
           className="md:hidden border-t dark:border-gray-700 bg-white dark:bg-gray-900
-                     max-h-[calc(100dvh-120px)] overflow-y-auto overscroll-contain
+                     max-h-[calc(100dvh-8rem)] overflow-y-auto overscroll-contain pb-24
                      [-webkit-overflow-scrolling:touch]"
         >
-
-          {/* MOBILE NAV LINKS */}
-          <div className="px-4 pt-2 pb-2">
-            {Menu.map((item) => (
-              <NavLink
-                key={item.id}
-                to={item.link}
-                onClick={() => setMobileOpen(false)}
-                className={({ isActive }) =>
-                  `block py-3 border-b dark:border-gray-700 text-sm font-medium ${isActive ? "text-orange-500" : ""
-                  }`
-                }
-              >
-                {item.name}
-              </NavLink>
-            ))}
-          </div>
-
-          {/* MOBILE AUTH */}
-          <div className="px-4 pt-2 pb-6 flex flex-col gap-2">
-            <NavLink to="/service" onClick={() => setMobileOpen(false)} className="py-3 border-b dark:border-gray-700 text-sm font-medium">
-              Service
-            </NavLink>
-            <NavLink to="/contact" onClick={() => setMobileOpen(false)} className="py-3 border-b dark:border-gray-700 text-sm font-medium">
-              Contact
-            </NavLink>
-
-            {isLoggedIn ? (
-              <>
-                {/* MOBILE PROFILE CARD */}
-                <div className="bg-orange-50 dark:bg-orange-900/20 rounded-2xl p-4 my-2">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0">
-                      {getInitials(user?.username)}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="font-bold text-gray-800 dark:text-white text-sm truncate">
-                        {user?.username || "User"}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                        {user?.email || ""}
-                      </p>
+          {/* LOGGED IN: profile + actions sabse upar */}
+          {isLoggedIn ? (
+            <div className="px-4 pt-3">
+              <div className="bg-orange-50 dark:bg-orange-900/20 rounded-2xl p-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0">
+                    {getInitials(user?.username)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-gray-800 dark:text-white text-sm truncate">
+                      {user?.username || "User"}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                      {user?.email || ""}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2 mt-1">
                       {user?.isAdmin && (
-                        <span className="inline-block bg-indigo-100 text-indigo-600 text-xs font-semibold px-2 py-0.5 rounded-full mt-1">
+                        <span className="bg-indigo-100 text-indigo-600 text-[11px] font-semibold px-2 py-0.5 rounded-full">
                           Admin
                         </span>
                       )}
+                      <span className="text-[11px] text-gray-400">
+                        🛒 {totalItems} item{totalItems !== 1 ? "s" : ""}
+                      </span>
                     </div>
                   </div>
-                  {user?.phone && (
-                    <p className="text-xs text-gray-500 mb-2">📞 {user.phone}</p>
-                  )}
-                  <p className="text-xs text-gray-400">🛒 {totalItems} item{totalItems !== 1 ? "s" : ""} in cart</p>
                 </div>
+              </div>
 
+              <div className={`grid gap-2 mt-3 ${user?.isAdmin ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-2"}`}>
                 {user?.isAdmin && (
                   <NavLink
                     to="/admin/users"
                     onClick={() => setMobileOpen(false)}
-                    className="py-2.5 px-4 bg-indigo-600 text-white text-sm font-semibold rounded-full text-center hover:bg-indigo-700 transition-colors"
+                    className="py-2.5 px-4 bg-indigo-600 text-white text-sm font-semibold rounded-full text-center hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
                   >
-                    Admin Panel
+                    <MdDashboard /> Admin Panel
                   </NavLink>
                 )}
                 <NavLink
@@ -431,29 +406,52 @@ const Navbar = () => {
                 <NavLink
                   to="/logout"
                   onClick={() => setMobileOpen(false)}
-                  className="py-2.5 px-4 bg-red-50 dark:bg-red-900/20 text-red-500 text-sm font-semibold rounded-full text-center hover:bg-red-100 transition-colors flex items-center justify-center gap-2 mt-1"
+                  className="py-2.5 px-4 bg-red-50 dark:bg-red-900/20 text-red-500 text-sm font-semibold rounded-full text-center hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
                 >
                   <FaSignOutAlt /> Logout
                 </NavLink>
-              </>
-            ) : (
-              <div className="flex gap-3 pt-2">
-                <NavLink
-                  to="/login"
-                  onClick={() => setMobileOpen(false)}
-                  className="flex-1 text-center border-2 border-orange-500 text-orange-500 px-4 py-2 rounded-full text-sm font-medium hover:bg-orange-50"
-                >
-                  Login
-                </NavLink>
-                <NavLink
-                  to="/register"
-                  onClick={() => setMobileOpen(false)}
-                  className="flex-1 text-center bg-orange-500 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-orange-600"
-                >
-                  Register
-                </NavLink>
               </div>
-            )}
+            </div>
+          ) : (
+            <div className="flex gap-3 px-4 pt-3">
+              <NavLink
+                to="/login"
+                onClick={() => setMobileOpen(false)}
+                className="flex-1 text-center border-2 border-orange-500 text-orange-500 px-4 py-2 rounded-full text-sm font-medium hover:bg-orange-50"
+              >
+                Login
+              </NavLink>
+              <NavLink
+                to="/register"
+                onClick={() => setMobileOpen(false)}
+                className="flex-1 text-center bg-orange-500 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-orange-600"
+              >
+                Register
+              </NavLink>
+            </div>
+          )}
+
+          {/* MOBILE NAV LINKS */}
+          <div className="px-4 pt-2">
+            {Menu.map((item) => (
+              <NavLink
+                key={item.id}
+                to={item.link}
+                onClick={() => setMobileOpen(false)}
+                className={({ isActive }) =>
+                  `block py-3 border-b dark:border-gray-700 text-sm font-medium ${isActive ? "text-orange-500" : ""}`
+                }
+              >
+                {item.name}
+              </NavLink>
+            ))}
+            <NavLink
+              to="/contact"
+              onClick={() => setMobileOpen(false)}
+              className="block py-3 border-b dark:border-gray-700 text-sm font-medium"
+            >
+              Contact
+            </NavLink>
           </div>
         </div>
       )}
@@ -462,7 +460,6 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
 
 
 // import React, { useState, useRef, useEffect } from "react";
