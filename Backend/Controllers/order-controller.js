@@ -36,9 +36,15 @@ const addOrder = async (req, res) => {
     }
 };
 
+// Admin -> sabke orders (customer details ke saath), user -> sirf apne
 const getMyOrders = async (req, res) => {
     try {
-        const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
+        const filter = req.user.isAdmin ? {} : { user: req.user._id };
+
+        const orders = await Order.find(filter)
+            .populate("user", "username email phone")
+            .sort({ createdAt: -1 });
+
         res.status(200).json(orders);
     } catch (error) {
         console.error("Get My Orders Error:", error);
@@ -46,10 +52,14 @@ const getMyOrders = async (req, res) => {
     }
 };
 
-// Sirf apna order delete ho sakta hai
+// User -> sirf apna, admin -> koi bhi order delete kar sakta hai
 const deleteOrder = async (req, res) => {
     try {
-        const order = await Order.findOne({ _id: req.params.id, user: req.user._id });
+        const filter = req.user.isAdmin
+            ? { _id: req.params.id }
+            : { _id: req.params.id, user: req.user._id };
+
+        const order = await Order.findOne(filter);
 
         if (!order) {
             return res.status(404).json({ message: "Order not found" });
