@@ -1,10 +1,1 @@
------admin-------
-user:admin@gmail.com
-password:arvind@9973
 
-RUN BACKEND COMMAND
-1.node app.js,
-2.nodemon app.js
-
-
-readmi
