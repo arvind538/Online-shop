@@ -32,7 +32,6 @@ const UsefulLinks = [
 ];
 
 const CustomerService = [
-  { title: "Service", link: "/service" },
   { title: "Contact Us", link: "/contact" },
   { title: "Login", link: "/login" },
   { title: "Register", link: "/register" },
@@ -75,8 +74,7 @@ const Footer = () => {
                   </h1>
                 </Link>
                 <p className="text-gray-300 text-sm leading-relaxed mb-6 max-w-sm">
-                  Your one-stop destination for quality products at affordable prices.
-                  Browse, order, and get it delivered — all in a few clicks.
+                  Your trusted destination for quality products at honest prices. Browse, order, and get it delivered to your doorstep, all in just a few clicks.
                 </p>
 
 

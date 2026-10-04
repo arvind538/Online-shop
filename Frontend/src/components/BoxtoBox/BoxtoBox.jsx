@@ -26,13 +26,13 @@ const cards = [
   },
   {
     id: 3,
-    title: "Electronics",
+    title: "SmartWatch",
     desc: "Latest gadgets, smartphones, laptops and accessories at unbeatable prices.",
     badge: "Hot Deals",
     badgeColor: "bg-orange-500",
     image: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?q=80&w=800&h=400&auto=format&fit=crop",
     position: "object-center",
-    link: "/electronics",
+    link: "/smartwatch",
     discount: "Up to 35% Off",
   },
 ];

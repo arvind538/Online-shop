@@ -96,7 +96,7 @@ const TopProducts = () => {
   };
 
   return (
-    <div className="py-14 px-4 bg-gray-50 dark:bg-gray-900">
+    <div className="py-10 px-4 bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto">
 
         {/* Header */}
@@ -227,7 +227,7 @@ const TopProducts = () => {
         {/* View All */}
         <div className="text-center mt-10">
           <button
-            onClick={() => navigate("/products")}
+            onClick={() => navigate("/mens")}
             className="bg-gray-800 dark:bg-white dark:text-gray-900 text-white px-8 py-3 rounded-full font-semibold hover:opacity-90 transition-opacity text-sm"
           >
             View All Products →

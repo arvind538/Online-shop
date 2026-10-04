@@ -56,7 +56,7 @@ const OfferData = [
     badge: "Mega Sale",
     title: "70% Off",
     description: "Electronics, clothing & accessories — biggest sale live.",
-    route: "/products",
+    route: "/electronics",
     color: "from-orange-500 to-orange-600",
   },
 ];
@@ -142,7 +142,7 @@ const Hero = () => {
   };
 
   return (
-    <div className="relative overflow-hidden min-h-[550px] sm:min-h-[600px] bg-gray-100 flex justify-center items-center dark:bg-gray-950 dark:text-white duration-200">
+    <div className="relative overflow-hidden min-h-[500px] sm:min-h-[600px] bg-gray-100 flex justify-center items-center dark:bg-gray-950 dark:text-white duration-200">
       <div className="h-[700px] w-[700px] bg-orange-400/20 absolute -top-1/2 right-0 rounded-3xl rotate-45 -z-[8]"></div>
 
       <div className="container pb-10 sm:pb-0 max-w-7xl mx-auto px-4">
@@ -168,7 +168,7 @@ const Hero = () => {
 
                   <div className="flex flex-wrap justify-center sm:justify-start gap-3 mt-2">
                     <Link
-                      to="/products"
+                      to="/girls"
                       className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 hover:scale-105 duration-200 text-white py-2.5 px-6 rounded-full text-sm font-semibold transition-all"
                     >
                       Shop Now

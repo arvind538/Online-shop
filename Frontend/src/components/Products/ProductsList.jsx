@@ -169,7 +169,7 @@ const ProductsList = () => {
         {/* View All Button */}
         <div className="flex justify-center mt-10 sm:mt-12">
           <Link
-            to="/products"
+            to="/girls"
             className="inline-flex items-center justify-center px-7 py-3 text-xs sm:text-sm font-semibold text-white bg-orange-500 hover:bg-orange-600 active:scale-95 transition-all rounded-full shadow-sm hover:shadow"
           >
             View All Items

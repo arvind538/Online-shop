@@ -51,7 +51,6 @@ import PublicRoute from "./components/PublicRoute";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import "./App.css";
-import Collection from "./Pages/Collection";
 import AdminDashboard from "./Pages/Admin-Dashboard";
 import AdminOrders from "./Pages/Admin-Orders";
 import AdminProducts from "./Pages/Admin-Products";
@@ -127,7 +126,7 @@ const App = () => {
             <Route path="/returns" element={<Returns />} />
             <Route path="/order-success" element={<OrderSuccess />} />
             {/* <Route path="/myorders" element={<MyOrders />} /> */}
-            <Route path="/collection" element={<Collection />} />
+          
             <Route path="/computer" element={<Computer />} />
             <Route path="/mobile" element={<Mobile />} />
             <Route path="/smartwatch" element={<SmartWatch />} />

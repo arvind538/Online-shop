@@ -10,7 +10,7 @@ fs.mkdirSync(outDir, { recursive: true });
 
 const KEY = process.env.UNSPLASH_KEY;
 if (!KEY) {
-    console.error('UNSPLASH_KEY set nahi hai. Pehle chalao: $env:UNSPLASH_KEY="tumhari_access_key"');
+    console.error('UNSPLASH_KEY set nahi hai. Pehle chalao: $env:UNSPLASH_KEY="g0PZCTaVb6u0UOfkabY6XEnF4HFkt0t9AxV6t0wflI0"');
     process.exit(1);
 }
 

@@ -10,7 +10,7 @@ const OrderSuccess = () => {
     if (!order) {
         return (
             <div className="text-center py-20">
-                <p className="text-gray-500 mb-4">Koi order details nahi mili.</p>
+                <p className="text-gray-500 mb-4">No order details found..</p>
                 <button onClick={() => navigate('/')} className="bg-orange-500 text-white px-6 py-2 rounded">
                     Home redirect
                 </button>
@@ -28,7 +28,7 @@ const OrderSuccess = () => {
                 </div>
 
                 <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Order Successfully Placed!</h1>
-                <p className="text-gray-500 text-sm mb-6">Aapka Cash on Delivery (COD) order confirm ho gaya hai.</p>
+                <p className="text-gray-500 text-sm mb-6">Your Cash on Delivery (COD) order has been confirmed..</p>
 
                 {/* Order Meta Info */}
                 <div className="bg-gray-50 p-4 rounded-xl text-left mb-6 flex flex-col md:flex-row justify-between text-sm">
@@ -48,7 +48,7 @@ const OrderSuccess = () => {
 
                 {/* Selected Items List */}
                 <div className="text-left mb-8">
-                    <h3 className="font-bold text-gray-800 mb-3 text-base border-b pb-2">Aapne kya-kya select kiya hai (Items):</h3>
+                    <h3 className="font-bold text-gray-800 mb-3 text-base border-b pb-2">What have you selected? (Items):</h3>
                     <div className="space-y-3">
                         {order.orderItems.map((item, index) => (
                             <div key={index} className="flex items-center gap-4 bg-white border p-3 rounded-xl shadow-xs">
